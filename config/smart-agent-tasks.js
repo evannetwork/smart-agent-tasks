@@ -23,13 +23,19 @@
   on other blockchains than evan.network. 
   
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
+
+  
 */
 
 exports['default'] = {
+  
   smartAgentTasks: (api) => {
     return {
       disabled: false,
       name: 'smartAgentTasks',
+      // local test account
+      //ethAccount: '0xa60F5EAfBb782793d7589bc5F55BfA3a599B182d',
+      // live account
       ethAccount: '0x00B7BD965DB2c7D666Fdf155a69FF66ea8ae1320',
     }
   }

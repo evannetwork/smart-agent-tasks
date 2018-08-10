@@ -23,12 +23,14 @@
   on other blockchains than evan.network. 
   
   For more information, please contact evan GmbH at this address: https://evan.network/license/ 
+
+  
 */
 
 'use strict'
 const request = require('request')
 const { Initializer, api } = require('actionhero')
-const { ContractState, DataContract, Definition, Sharing } = require('blockchain-core')
+const { ContractState, DataContract, Description, Sharing } = require('@evan.network/api-blockchain-core')
 
 const config = api.config.smartAgentTasks
 const weatherEn = /.*weather (?:in|at|near) ([\w -]+)/i
@@ -95,7 +97,7 @@ module.exports = class SmartAgentTasks extends Initializer {
     class SmartAgentTasks extends api.smartAgents.SmartAgent {
       async initialize() {
         await super.initialize()
-        this.definition = new Definition({
+        this.description = new Description({
           executor: api.bcc.executor,
           contractLoader: api.bcc.contractLoader,
           dfs: api.bcc.ipfs,
@@ -106,14 +108,14 @@ module.exports = class SmartAgentTasks extends Initializer {
         this.sharing = new Sharing({
           contractLoader: api.bcc.contractLoader,
           cryptoProvider: api.bcc.cryptoProvider,
-          definition: this.definition,
+          description: this.description,
           executor: api.bcc.executor,
           dfs: api.bcc.ipfs,
           keyProvider: this.keyProvider,
           nameResolver: api.bcc.nameResolver,
           defaultCryptoAlgo: api.bcc.defaultCryptoAlgo,
         })
-        this.definition.sharing = this.sharing;
+        this.description.sharing = this.sharing;
         this.dataContract = new DataContract({
           cryptoProvider: api.bcc.cryptoProvider,
           dfs: api.bcc.ipfs,
@@ -123,7 +125,7 @@ module.exports = class SmartAgentTasks extends Initializer {
           nameResolver: api.bcc.nameResolver,
           sharing: this.sharing,
           web3: api.eth.web3,
-          definition: this.definition,
+          description: this.description,
         })
       }
       async startTaskListener() {
@@ -131,7 +133,7 @@ module.exports = class SmartAgentTasks extends Initializer {
           const taskContractType = api.eth.web3.utils.sha3('TaskDataContract')
           let processingQueue = Promise.resolve()
           // get block from last uptime
-          const lastBlockOuter  = await api.redis.clients.client.get('contractus:smartAgentTasks:lastBlock') || (await api.eth.web3.eth.getBlockNumber())
+          const lastBlockOuter  = await api.redis.clients.client.get('evannetwork:smartAgentTasks:lastBlock') || (await api.eth.web3.eth.getBlockNumber())
           api.log(`last lastBlockOuter: ${lastBlockOuter}`)
           await api.bcc.eventHub.subscribe('EventHub', null, 'ContractEvent',
             async (event) => {
@@ -147,9 +149,9 @@ module.exports = class SmartAgentTasks extends Initializer {
                 const blockNumber = event.blockNumber;
                 const { contractAddress } = event.returnValues;
                 // mark outer block as handled
-                await api.redis.clients.client.set('contractus:smartAgentTasks:lastBlock', blockNumber)
+                await api.redis.clients.client.set('evannetwork:smartAgentTasks:lastBlock', blockNumber)
                 // store block and contract to continue later on
-                await api.redis.clients.client.zadd('contractus:smartAgentTasks:lastBlocks', blockNumber, contractAddress)
+                await api.redis.clients.client.zadd('evannetwork:smartAgentTasks:lastBlocks', blockNumber, contractAddress)
                 // load all remaining contracts and start listeners
                 this.subscribeForContractRelease(contractAddress, blockNumber)
               }
@@ -165,7 +167,7 @@ module.exports = class SmartAgentTasks extends Initializer {
           )
           // load all remaining contracts and start listeners
           // fetch remaining contract listener and start their own once listener
-          const remaining = (await api.redis.clients.client.zrange('contractus:smartAgentTasks:lastBlocks', 0, -1, 'WITHSCORES'))
+          const remaining = (await api.redis.clients.client.zrange('evannetwork:smartAgentTasks:lastBlocks', 0, -1, 'WITHSCORES'))
           api.log(`remaining blocks and contracts: ${JSON.stringify(remaining, null, 2)}`)
           while (remaining.length >= 2) {
             const [contractAddress, block] = remaining.splice(0, 2);
@@ -183,7 +185,7 @@ module.exports = class SmartAgentTasks extends Initializer {
           },
           async () => {
             // mark block/contract as done
-            await api.redis.clients.client.zrem('contractus:smartAgentTasks:lastBlocks', contractAddress)
+            await api.redis.clients.client.zrem('evannetwork:smartAgentTasks:lastBlocks', contractAddress)
             const contract = api.bcc.contractLoader.loadContract('DataContractInterface', contractAddress)
             const isConsumer = await api.bcc.executor.executeContractCall(contract, 'isConsumer', this.config.ethAccount)
             if (isConsumer) {
