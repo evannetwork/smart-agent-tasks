@@ -156,8 +156,8 @@ module.exports = class SmartAgentTasks extends Initializer {
             const contract = this.runtime.contractLoader.loadContract('DataContractInterface', contractAddress)
             const isConsumer = await this.runtime.executor.executeContractCall(contract, 'isConsumer', this.config.ethAccount)
             if (isConsumer) {
-              const entries = await this.dataContract.getListEntries(contract, 'todos', this.config.ethAccount)
-              await this.dataContract.changeConsumerState(contract, this.config.ethAccount, this.config.ethAccount, 4);
+              const entries = await this.runtime.dataContract.getListEntries(contract, 'todos', this.config.ethAccount)
+              await this.runtime.dataContract.changeConsumerState(contract, this.config.ethAccount, this.config.ethAccount, 4);
               if (entries && entries.length) {
                 for (let entry of entries) {
                   let answer = {
@@ -169,7 +169,7 @@ module.exports = class SmartAgentTasks extends Initializer {
                   }
                   answer.comment = await getWeatherComment(entry.alias.toLowerCase())
                   if (answer.comment) {
-                    await this.dataContract.addListEntries(contract, 'todologs', [answer], this.config.ethAccount)
+                    await this.runtime.dataContract.addListEntries(contract, 'todologs', [answer], this.config.ethAccount)
                   }
                 }
               }
