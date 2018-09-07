@@ -30,7 +30,7 @@
 'use strict'
 const request = require('request')
 const { Initializer, api } = require('actionhero')
-const { ContractState, DataContract, Description, Sharing } = require('@evan.network/api-blockchain-core')
+const { ContractState, } = require('@evan.network/api-blockchain-core')
 
 const config = api.config.smartAgentTasks
 const weatherEn = /.*weather (?:in|at|near) ([\w -]+)/i
@@ -95,39 +95,6 @@ module.exports = class SmartAgentTasks extends Initializer {
       return
     }
     class SmartAgentTasks extends api.smartAgents.SmartAgent {
-      async initialize() {
-        await super.initialize()
-        this.description = new Description({
-          executor: api.bcc.executor,
-          contractLoader: api.bcc.contractLoader,
-          dfs: api.bcc.ipfs,
-          nameResolver: api.bcc.nameResolver,
-          cryptoProvider: api.bcc.cryptoProvider,
-          keyProvider: this.keyProvider,
-        })
-        this.sharing = new Sharing({
-          contractLoader: api.bcc.contractLoader,
-          cryptoProvider: api.bcc.cryptoProvider,
-          description: this.description,
-          executor: api.bcc.executor,
-          dfs: api.bcc.ipfs,
-          keyProvider: this.keyProvider,
-          nameResolver: api.bcc.nameResolver,
-          defaultCryptoAlgo: api.bcc.defaultCryptoAlgo,
-        })
-        this.description.sharing = this.sharing;
-        this.dataContract = new DataContract({
-          cryptoProvider: api.bcc.cryptoProvider,
-          dfs: api.bcc.ipfs,
-          executor: api.bcc.executor,
-          loader: api.bcc.contractLoader,
-          log: api.log,
-          nameResolver: api.bcc.nameResolver,
-          sharing: this.sharing,
-          web3: api.eth.web3,
-          description: this.description,
-        })
-      }
       async startTaskListener() {
         try {
           const taskContractType = api.eth.web3.utils.sha3('TaskDataContract')
@@ -135,7 +102,7 @@ module.exports = class SmartAgentTasks extends Initializer {
           // get block from last uptime
           const lastBlockOuter  = await api.redis.clients.client.get('evannetwork:smartAgentTasks:lastBlock') || (await api.eth.web3.eth.getBlockNumber())
           api.log(`last lastBlockOuter: ${lastBlockOuter}`)
-          await api.bcc.eventHub.subscribe('EventHub', null, 'ContractEvent',
+          await this.runtime.eventHub.subscribe('EventHub', null, 'ContractEvent',
             async (event) => {
               const { eventType, contractType, member } = event.returnValues;
               return member === this.config.ethAccount &&   // invited user is smart agent
@@ -178,7 +145,7 @@ module.exports = class SmartAgentTasks extends Initializer {
         }
       }
       async subscribeForContractRelease(contractAddress, block) {
-        api.bcc.eventHub.once('BaseContractInterface', contractAddress, 'StateshiftEvent',
+        this.runtime.eventHub.once('BaseContractInterface', contractAddress, 'StateshiftEvent',
           (event) => {
             const { state } = event.returnValues;
             return state && parseInt(state, 10) === ContractState.Active;
@@ -186,8 +153,8 @@ module.exports = class SmartAgentTasks extends Initializer {
           async () => {
             // mark block/contract as done
             await api.redis.clients.client.zrem('evannetwork:smartAgentTasks:lastBlocks', contractAddress)
-            const contract = api.bcc.contractLoader.loadContract('DataContractInterface', contractAddress)
-            const isConsumer = await api.bcc.executor.executeContractCall(contract, 'isConsumer', this.config.ethAccount)
+            const contract = this.runtime.contractLoader.loadContract('DataContractInterface', contractAddress)
+            const isConsumer = await this.runtime.executor.executeContractCall(contract, 'isConsumer', this.config.ethAccount)
             if (isConsumer) {
               const entries = await this.dataContract.getListEntries(contract, 'todos', this.config.ethAccount)
               await this.dataContract.changeConsumerState(contract, this.config.ethAccount, this.config.ethAccount, 4);
