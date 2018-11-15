@@ -1,6 +1,6 @@
 {
   "license": "AGPL-3.0-only",
-  "author": "contractus",
+  "author": "evan GmbH",
   "name": "smart-agent-tasks",
   "description": "smart agent that replies to assigned ToDos with a weather report",
   "version": "0.9.0",
