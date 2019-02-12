@@ -2,10 +2,13 @@
 
 ## Next Version
 ### Features
-- smart agent now uses own `runtime` instead of `api.bcc` for transactions
-
 ### Fixes
 ### Deprecations
+
+
+## Version 1.0.0
+### Features
+- smart agent now uses own `runtime` instead of `api.bcc` for transactions
 
 
 ## Version 0.9.0
