@@ -1,40 +1,31 @@
-/*
-  Copyright (C) 2018-present evan GmbH.
-
-  This program is free software: you can redistribute it and/or modify it
-  under the terms of the GNU Affero General Public License, version 3,
-  as published by the Free Software Foundation.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  See the GNU Affero General Public License for more details.
-
-  You should have received a copy of the GNU Affero General Public License along with this program.
-  If not, see http://www.gnu.org/licenses/ or write to the
-
-  Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA, 02110-1301 USA,
-
-  or download the license from the following URL: https://evan.network/license/
-
-  You can be released from the requirements of the GNU Affero General Public License
-  by purchasing a commercial license.
-  Buying such a license is mandatory as soon as you use this software or parts of it
-  on other blockchains than evan.network.
-
-  For more information, please contact evan GmbH at this address: https://evan.network/license/
-*/
-
 exports['default'] = {
+  // makes your used evan.network accounts and private keys known to the blockchain-core
+  // so the library can sign and encrypt with it.
+  ethAccounts: {
+    '0xa60F5EAfBb782793d7589bc5F55BfA3a599B182d' :
+      '4fb3cc3b3150e3a8c1a40ae677cecc7bbfaf2dbec396ac551af5ec75f59a4e65',
+  },
+
+  // the different needed encryption keys associated with each account or account pair
+  // also collected and merged in the blockchain-core library
+  encryptionKeys: {
+
+    // comm key
+    //'0xa60F5EAfBb782793d7589bc5F55BfA3a599B182d,0xa60F5EAfBb782793d7589bc5F55BfA3a599B182d':
+    '0x56ec2af1230ae95fe4d18d238a43d75e17026f260ad2e3a91a86de123ba72a03':
+      '346c22768f84f3050f5c94cec98349b3c5cbfa0b7315304e13647a4918ffffab',
+
+    // data key
+    //'0xa60F5EAfBb782793d7589bc5F55BfA3a599B182d':
+    '0x064afbfe509dd056ff0011bb2a6d019b9fb8c4a9079b1276cd791c688e333b7a':
+      '346c22768f84f3050f5c94cec98349b3c5cbfa0b7315304e13647a4918ffffab',
+  },
 
   smartAgentTasks: (api) => {
     return {
-      disabled: false,
+      disabled:  process.env.SMART_AGENT_TASKS_DISABLED ?  JSON.parse(process.env.SMART_AGENT_TASKS_DISABLED) : true,
       name: 'smartAgentTasks',
-      // local test account
-      // ethAccount: '0xa60F5EAfBb782793d7589bc5F55BfA3a599B182d',
-      // live account
-      ethAccount: '0x00B7BD965DB2c7D666Fdf155a69FF66ea8ae1320'
+      ethAccount: '0xa60F5EAfBb782793d7589bc5F55BfA3a599B182d',
     }
   }
 }
