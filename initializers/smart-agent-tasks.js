@@ -105,7 +105,7 @@ module.exports = class SmartAgentTasks extends Initializer {
               // invite
               return member === this.config.ethAccount &&
                 contractType === taskContractType &&
-                eventType === '0'
+                eventType.eq('0')
             },
             (event) => {
               const handleEvent = async () => {

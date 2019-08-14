@@ -2,7 +2,10 @@
 
 ## Next Version
 ### Features
+
 ### Fixes
+- fix eventType handling for newer web3 versions
+
 ### Deprecations
 
 
