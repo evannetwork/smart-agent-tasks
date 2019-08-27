@@ -4,10 +4,17 @@
 ### Features
 
 ### Fixes
-- fix eventType handling for newer web3 versions
 
 ### Deprecations
 
+
+## Version 1.0.1
+### Features
+
+### Fixes
+- fix eventType handling for newer web3 versions
+
+### Deprecations
 
 ## Version 1.0.0
 ### Features
