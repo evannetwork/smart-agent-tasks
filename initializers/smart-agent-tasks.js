@@ -30,7 +30,6 @@ const request = require('request')
 const { Initializer, api } = require('actionhero')
 const { ContractState } = require('@evan.network/api-blockchain-core')
 
-const config = api.config.smartAgentTasks
 const weatherEn = /.*weather (?:in|at|near) ([\w -]+)/i
 const weatherDe = /.*wetter (?:in|bei|nahe|um) ([\w -]+)/i
 
@@ -87,7 +86,7 @@ module.exports = class SmartAgentTasks extends Initializer {
   }
 
   async initialize () {
-    if (config.disabled) {
+    if (api.config.smartAgentTasks.disabled) {
       return
     }
     class SmartAgentTasks extends api.smartAgents.SmartAgent {
@@ -106,7 +105,7 @@ module.exports = class SmartAgentTasks extends Initializer {
               // invite
               return member === this.config.ethAccount &&
                 contractType === taskContractType &&
-                eventType === '0'
+                eventType.eq('0')
             },
             (event) => {
               const handleEvent = async () => {
@@ -177,7 +176,7 @@ module.exports = class SmartAgentTasks extends Initializer {
       }
     }
 
-    const smartAgentTasks = new SmartAgentTasks(config)
+    const smartAgentTasks = new SmartAgentTasks(api.config.smartAgentTasks)
     await smartAgentTasks.initialize()
     await smartAgentTasks.startTaskListener()
   }

@@ -3,7 +3,7 @@
   "author": "evan GmbH",
   "name": "smart-agent-tasks",
   "description": "smart agent that replies to assigned ToDos with a weather report",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "node": ">=8.0.0"
   },
